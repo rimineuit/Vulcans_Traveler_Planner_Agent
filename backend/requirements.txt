@@ -1,4 +1,8 @@
-vllm
 fastapi
 uvicorn
 pydantic
+langchain
+langchain-deepseek
+dotenv
+google-genai
+pymongo[srv]==3.12
