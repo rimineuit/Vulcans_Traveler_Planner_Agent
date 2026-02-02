@@ -1,11 +1,66 @@
+version: '3.8'
+
 services:
+  # Database: MongoDB
+  mongodb:
+    image: mongo:latest
+    container_name: vulcan_mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  # Backend: FastAPI
   backend:
-    build: ./backend
+    build: 
+      context: ./backend
+    container_name: vulcan_backend
+    # Tự động nạp toàn bộ biến trong .env vào container
+    env_file:
+      - .env
+    # Hoặc khai báo tường minh nếu muốn override/map tên biến cụ thể
+    environment:
+      - MONGO_URI=${MONGO_URI}
+      - MONGO_DB_NAME=${MONGO_DB_NAME}
+      - COLLECTION_MESSAGES=${COLLECTION_MESSAGES}
+      - COLLECTION_SUMMARY=${COLLECTION_SUMMARY}
+      - COLLECTION_SESSIONS=${COLLECTION_SESSIONS}
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+      - LANGSMITH_TRACING=${LANGSMITH_TRACING}
+      - LANGSMITH_ENDPOINT=${LANGSMITH_ENDPOINT}
+      - LANGSMITH_API_KEY=${LANGSMITH_API_KEY}
+      - LANGSMITH_PROJECT=${LANGSMITH_PROJECT}
     ports:
       - "8000:8000"
+    depends_on:
+      - mongodb
+
+  # Frontend: Streamlit
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+    container_name: vulcan_frontend
     ports:
       - "8501:8501"
+    env_file:
+      - .env
+    environment:
+      - BACKEND_URL=${BACKEND_URL}
     depends_on:
       - backend
+
+  # Mongo Express (Database UI)
+  mongo-express:
+    image: mongo-express
+    container_name: vulcan_mongo_express
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=${MONGO_HOST}
+      - ME_CONFIG_MONGODB_PORT=${MONGO_PORT}
+    depends_on:
+      - mongodb
+
+volumes:
+  mongo_data:

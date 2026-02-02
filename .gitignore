@@ -4,3 +4,5 @@ data/
 logs/
 __pycache__/
 test.py
+
+project_context.txt
