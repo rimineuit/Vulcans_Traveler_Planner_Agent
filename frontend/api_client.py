@@ -2,6 +2,8 @@ import requests
 import streamlit as st
 from dotenv import load_dotenv
 import os
+
+
 load_dotenv()
 BACKEND_URL = os.getenv("BACKEND_URL", "http://backend:8000")
 
@@ -71,3 +73,14 @@ def get_chat_summary_api(session_id: str):
     except Exception as e:
         st.error(f"Không thể kết nối đến Backend: {e}")
         return None
+    
+    
+def get_unsummarized_tokens_count_api(session_id: str):
+    """Lấy số lượng token chưa tóm tắt để hiển thị thanh tiến trình"""
+    try:
+        response = requests.get(f"{BACKEND_URL}/api/v1/{session_id}/unsumarized_tokens_count")
+        if response.status_code == 200:
+            return response.json()["data"]["unsummarized_token_count"]
+        return 0
+    except Exception:
+        return 0

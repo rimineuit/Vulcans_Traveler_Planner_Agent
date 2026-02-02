@@ -81,7 +81,6 @@ class Movie(BaseModel):
     director: str = Field(..., description="The director of the movie")
     rating: float = Field(..., description="The movie's rating out of 10")
     
-
 async def main():
     engine = LLMService(temperature=0.7) # Khởi tạo engine
     messages = [

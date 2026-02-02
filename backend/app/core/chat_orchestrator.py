@@ -4,19 +4,19 @@ from app.core.query_process import QueryProcessor
 from fastapi.encoders import jsonable_encoder
 from app.utils.token_counter import TokenCounter
 from app.core.memory import MemoryManager
-# Sau khi lưu tin nhắn Assistant xong
 import asyncio
+from fastapi import BackgroundTasks
 
 class ChatOrchestrator:
     def __init__(self):
-        # Khởi tạo các "đệ tử"
+        # Khởi tạo các thành phần cần thiết
         self.db = DatabaseManager()
         self.llm_service = LLMService()
         self.processor = QueryProcessor(self.llm_service)
         self.token_counter = TokenCounter()
         self.memory_manager = MemoryManager(self.db, self.llm_service)
         
-    async def handle_chat(self, user_id: str, session_id: str, message: str):
+    async def handle_chat(self, user_id: str, session_id: str, message: str, background_tasks: BackgroundTasks):
             # --- BƯỚC 1: TIẾP NHẬN & LƯU TRỮ BAN ĐẦU ---
             user_content_tokens = self.token_counter.count_text_tokens(message)
             user_msg_result = await self.db.save_message(
@@ -80,7 +80,14 @@ class ChatOrchestrator:
             ])
 
             # Lưu câu trả lời và dọn dẹp
-            await self._finalize_chat(session_id, user_id, ai_response.answer, "final_answer", ai_response)
+            background_tasks.add_task(
+                        self._finalize_chat, 
+                        session_id, 
+                        user_id, 
+                        ai_response.answer, 
+                        "final_answer", 
+                        ai_response
+            )
             
             return {"type": "answer", "data": ai_response.answer, "response": ai_response.answer}
 
@@ -91,6 +98,7 @@ class ChatOrchestrator:
             "type": msg_type,
             "content_tokens": tokens
         }
+        
         if llm_meta:
             metadata["llm_usage"] = {"input": llm_meta.input_tokens, "output": llm_meta.output_tokens}
 

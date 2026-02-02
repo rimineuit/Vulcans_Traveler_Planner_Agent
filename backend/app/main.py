@@ -1,6 +1,6 @@
 # Entry point cho Backend (FastAPI/Flask)
 from pydantic import BaseModel, Field
-from fastapi import FastAPI
+from fastapi import FastAPI, BackgroundTasks
 from app.core.schema import ChatRequest
 from app.core.llm_service import LLMService
 from app.core.chat_orchestrator import ChatOrchestrator
@@ -16,10 +16,21 @@ def read_root():
     return {"Hello": "World"}
 
 @app.post("/api/v1/chat/completions")
-async def chat_completions(request: ChatRequest):
+async def chat_completions(request: ChatRequest, background_tasks: BackgroundTasks): # <--- Thêm tham số này
     """Process chat completion requests."""
-    result = await chat_orchestrator.handle_chat(request.user_id, request.session_id, request.query)
+    # Truyền background_tasks vào handle_chat
+    result = await chat_orchestrator.handle_chat(
+        request.user_id, 
+        request.session_id, 
+        request.query, 
+        background_tasks
+    )
     return result
+
+@app.get("/api/v1/{session_id}/unsumarized_tokens_count")
+async def get_unsummarized_tokens_count(session_id: str):
+    count = await chat_orchestrator.memory_manager.get_unsummarized_token_count(session_id)
+    return {"status": "success", "data": {"unsummarized_token_count": count}}
 
 @app.get("/api/v1/users/{user_id}/sessions")
 async def read_user_sessions(user_id: str, limit: int = 10):
