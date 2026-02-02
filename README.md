@@ -6,6 +6,24 @@
 
 ---
 
+## 🚀 Tính Năng Nổi Bật
+
+* **🧠 Smart Memory Management**:
+    * **Short-term**: Lưu trữ nguyên văn các đoạn hội thoại gần nhất.
+    * **Long-term**: Tự động tóm tắt hội thoại khi vượt ngưỡng Token để cập nhật vào "Hồ sơ sức khỏe" (User Profile) có cấu trúc (Cân nặng, chiều cao, dị ứng, mục tiêu...).
+* **🔍 Advanced Query Pipeline**:
+    * **Rewrite**: Viết lại câu hỏi của người dùng để rõ nghĩa hơn dựa trên ngữ cảnh cũ.
+    * **Clarify**: Tự động đặt câu hỏi ngược lại cho người dùng nếu thiếu thông tin quan trọng (VD: Cần biết cân nặng để tính Calories).
+    * **Augment**: Bổ sung dữ liệu hồ sơ vào ngữ cảnh trước khi gửi cho LLM trả lời.
+* **⚡ Tech Stack hiện đại**:
+    * **Backend**: FastAPI (Python 3.11), Pydantic (Structured Output).
+    * **AI Engine**: LangChain, DeepSeek-V3 (via API), LangSmith (Tracing).
+    * **Database**: MongoDB (Motor Async Driver).
+    * **Frontend**: Streamlit.
+    * **DevOps**: Docker & Docker Compose.
+
+---
+
 ## 🚀 1. Hướng dẫn Cài đặt & Khởi chạy (Quick Start)
 
 Hệ thống được đóng gói hoàn toàn bằng Docker ("Containerized"), đảm bảo chạy ổn định trên mọi môi trường.
